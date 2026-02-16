@@ -1,3 +1,4 @@
+# LxPhisher
 <p align="center"> <img src="https://img.shields.io/badge/Version-3.0-blue" alt="Version"> <img src="https://img.shields.io/badge/License-MIT-green" alt="License"> <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-lightgrey" alt="Platform"> <img src="https://img.shields.io/badge/Purpose-Education%20Only-red" alt="Purpose"> </p>
 📖 Overview
 LxPhisher is a sophisticated phishing simulation toolkit designed for educational purposes and security awareness training. It provides a comprehensive platform for demonstrating phishing techniques, testing organizational resilience, and educating users about online security threats.
