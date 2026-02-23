@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,22 @@ class CredentialDB:
     
     def __init__(self, db_path: str = "captured_data/credentials.db"):
         self.db_path = db_path
-        self.init_database()
+        try:
+            self.init_database()
+        except sqlite3.Error as e:
+            fallback = self._get_fallback_db_path(db_path)
+            logger.warning(
+                f"Primary database path unavailable ({db_path}): {e}. "
+                f"Falling back to {fallback}"
+            )
+            self.db_path = fallback
+            self.init_database()
+
+    def _get_fallback_db_path(self, original_path: str) -> str:
+        """Build a writable fallback database path in system temp."""
+        temp_dir = Path(tempfile.gettempdir()) / "socialhook-x"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        return str(temp_dir / Path(original_path).name)
     
     def init_database(self):
         """Initialize database with required tables"""
