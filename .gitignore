@@ -1,39 +1,70 @@
-# LxPhisher .gitignore
+# SocialHook-X .gitignore
 
-# Runtime data
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Runtime/generated project data
 servers/*
-captured_data/*
-auth/*
-!.gitkeep
+!servers/.gitkeep
 
-# Tunnel binaries (should be downloaded by installer)
+captured_data/*
+!captured_data/.gitkeep
+
+output/
+auth/
+logs/
+tmp/
 .tunnels/
 
-# System files
-.DS_Store
-Thumbs.db
+# Database artifacts
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+*.db-journal
 
-# Logs
+# Logs and temporary files
 *.log
-logs/
-
-# Temporary files
 *.tmp
 *.temp
-/tmp/
-
-# Backup files
 *.bak
 *.backup
+*.pid
 
-# IDE files
+# Environment/secrets
+.env
+.env.*
+!.env.example
+
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
-third_party/
+
 # OS files
+.DS_Store
+Thumbs.db
 ._*
 
-# Keep empty directories
-!.gitkeep
+# Keep vendored references out of commits by default
+third_party/
