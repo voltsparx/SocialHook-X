@@ -1,19 +1,24 @@
-# Privacy Policy
+# Privacy Notice
 
-LxPhisher is designed for educational purposes and does not collect any user data.
+LxPhisher is intended for controlled awareness simulations. The project itself does not include telemetry collection by default.
 
-## Data Collection
-- No telemetry data is collected
-- No usage statistics are gathered
-- No personal information is transmitted
+## Data Handling Scope
 
-## Local Data
-- Credentials are stored only locally in `captured_data/` directory
-- All data remains on the user's system
-- Users are responsible for secure deletion of captured data
+- No built-in external analytics or telemetry endpoints are provided by default.
+- Exercise-generated data may be written locally by runtime components in this repository.
+- Data written locally remains under operator control on the host system.
+
+## Local Data Responsibility
+
+- Treat all generated exercise data as sensitive.
+- Limit access to authorized personnel only.
+- Retain data only as long as required for the approved training objective.
+- Securely delete lab data when the exercise is complete.
 
 ## Third-Party Services
-Tunnel services (Ngrok, Cloudflared, etc.) may have their own privacy policies. Users should review these when using external tunneling options.
 
-## User Responsibility
-Users are solely responsible for any data captured during authorized educational use and must handle this data in compliance with applicable privacy laws.
+If external tunnel or hosting providers are used, their privacy terms and data-processing behavior apply independently. Review those policies before use.
+
+## Legal and Compliance Responsibility
+
+Operators are solely responsible for lawful processing, consent handling, and regulatory compliance for any data generated during authorized exercises.

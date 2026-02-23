@@ -1,23 +1,27 @@
 # Contributing Guidelines
 
-## Educational Purpose Only
-LxPhisher accepts contributions that enhance its educational value while maintaining ethical standards.
+## Project Intent
 
-## Acceptable Contributions
-- Documentation improvements
-- Security awareness content
-- Ethical usage guidelines
-- Bug fixes (that don't enable malicious use)
-- Template improvements for educational value
+LxPhisher accepts contributions that improve defensive education, documentation quality, maintainability, and safe lab operation.
 
-## Unacceptable Contributions
-- Features that enhance malicious capabilities
-- Bypasses for security systems
-- Anything that violates the educational purpose
+## Accepted Contribution Types
 
-## Process
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request with clear description
-5. Ensure all contributions align with educational purposes
+- Documentation and clarity improvements.
+- Bug fixes that improve reliability in authorized training use.
+- Tests, validation, and quality-of-life improvements.
+- Compliance, consent, and safety-guardrail enhancements.
+
+## Rejected Contribution Types
+
+- Any change that increases unauthorized-use capability.
+- Evasion, stealth, or anti-detection enhancements.
+- Data exfiltration improvements or covert collection behavior.
+- Any contribution that conflicts with `DISCLAIMER.md`.
+
+## Pull Request Process
+
+1. Fork the repository.
+2. Create a feature branch with a clear name.
+3. Keep changes focused and well documented.
+4. Submit a pull request with context, rationale, and testing notes.
+5. Confirm alignment with educational and authorized-use requirements.
