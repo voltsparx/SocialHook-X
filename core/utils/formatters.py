@@ -5,6 +5,7 @@ Provides output formatting and data presentation functions.
 """
 
 import logging
+import html
 from typing import Any, Dict, List
 from datetime import datetime
 
@@ -205,25 +206,25 @@ class CredentialFormatter:
         if not credentials:
             return "<table></table>"
         
-        html = "<table border='1' cellpadding='5'>\n"
+        html_table = "<table border='1' cellpadding='5'>\n"
         
         # Header
         fieldnames = list(credentials[0].keys())
-        html += "  <tr>\n"
+        html_table += "  <tr>\n"
         for field in fieldnames:
-            html += f"    <th>{field}</th>\n"
-        html += "  </tr>\n"
+            html_table += f"    <th>{html.escape(str(field))}</th>\n"
+        html_table += "  </tr>\n"
         
         # Rows
         for cred in credentials:
-            html += "  <tr>\n"
+            html_table += "  <tr>\n"
             for field in fieldnames:
                 value = cred.get(field, '')
-                html += f"    <td>{value}</td>\n"
-            html += "  </tr>\n"
+                html_table += f"    <td>{html.escape(str(value))}</td>\n"
+            html_table += "  </tr>\n"
         
-        html += "</table>"
-        return html
+        html_table += "</table>"
+        return html_table
     
     @staticmethod
     def format_summary(credentials: List[Dict]) -> str:

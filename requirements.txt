@@ -20,7 +20,7 @@ python-dotenv>=1.0.0
 # Logging & Monitoring
 python-json-logger>=2.0.0
 
-# Security
+# Security - CRITICAL
 cryptography>=41.0.0
 
 # CLI & Command Line
@@ -40,4 +40,5 @@ Pillow>=10.0.0
 pytest>=7.0.0
 black>=23.0.0
 flake8>=6.0.0
+bandit>=1.7.5
 

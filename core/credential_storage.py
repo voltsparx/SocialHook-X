@@ -29,6 +29,13 @@ class CredentialStorage:
         self.formatter = CredentialFormatter()
         self.credentials: List[Dict[str, Any]] = []
         self._ensure_directory()
+
+    @staticmethod
+    def _credential_date(value: str) -> str:
+        """Extract YYYY-MM-DD from an ISO-like timestamp string."""
+        if not value:
+            return ""
+        return value.split("T", 1)[0]
     
     def _ensure_directory(self) -> None:
         """Ensure output directory structure exists"""
@@ -50,14 +57,14 @@ class CredentialStorage:
             True if successful, False otherwise
         """
         try:
-            # Add metadata
-            credential_data['timestamp'] = datetime.now().isoformat()
-            credential_data['template'] = template
+            record = dict(credential_data)
+            record['timestamp'] = datetime.now().isoformat()
+            record['template'] = template
             
-            self.credentials.append(credential_data)
+            self.credentials.append(record)
             
             # Auto-save to JSON
-            return self._save_json([credential_data], append=True)
+            return self._save_json([record], append=True)
         except Exception as e:
             logger.error(f"Error saving credential: {e}")
             return False
@@ -74,12 +81,15 @@ class CredentialStorage:
             True if successful, False otherwise
         """
         try:
+            prepared = []
             for cred in credentials:
-                cred['timestamp'] = datetime.now().isoformat()
-                cred['template'] = template
+                record = dict(cred)
+                record['timestamp'] = datetime.now().isoformat()
+                record['template'] = template
+                prepared.append(record)
             
-            self.credentials.extend(credentials)
-            return self._save_json(credentials, append=True)
+            self.credentials.extend(prepared)
+            return self._save_json(prepared, append=True)
         except Exception as e:
             logger.error(f"Error saving credentials batch: {e}")
             return False
@@ -96,17 +106,17 @@ class CredentialStorage:
         """
         try:
             timestamp = datetime.now().strftime("%Y%m%d")
-            filepath = f"{self.base_path}/json/credentials_{timestamp}.json"
+            filepath = f"{self.base_path}/json/credentials_{timestamp}.txt"
             
             if append and Path(filepath).exists():
-                with open(filepath, 'r') as f:
+                with open(filepath, 'r', encoding='utf-8') as f:
                     existing = json.load(f)
                 existing.extend(credentials)
                 data = existing
             else:
                 data = credentials
             
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2)
             
             logger.info(f"Credentials saved to JSON: {filepath}")
@@ -131,11 +141,16 @@ class CredentialStorage:
                 return None
             
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filepath = f"{self.base_path}/csv/credentials_{timestamp}.csv"
+            filepath = f"{self.base_path}/csv/credentials_{timestamp}.txt"
             
-            with open(filepath, 'w', newline='') as f:
-                fieldnames = list(data[0].keys())
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
+            # Determine all possible fieldnames from all records
+            fieldnames = set()
+            for record in data:
+                fieldnames.update(record.keys())
+            fieldnames = sorted(list(fieldnames))
+            
+            with open(filepath, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
                 writer.writeheader()
                 writer.writerows(data)
             
@@ -161,7 +176,7 @@ class CredentialStorage:
                 return None
             
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filepath = f"{self.base_path}/html/credentials_{timestamp}.html"
+            filepath = f"{self.base_path}/html/credentials_{timestamp}.txt"
             
             html_table = self.formatter.format_for_html_table(data)
             
@@ -192,7 +207,7 @@ class CredentialStorage:
 </html>
 """
             
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(html_content)
             
             logger.info(f"Credentials exported to HTML: {filepath}")
@@ -275,10 +290,16 @@ class CredentialStorage:
             results = [c for c in results if c.get('template') == template]
         
         if start_date:
-            results = [c for c in results if c.get('timestamp', '') >= start_date]
+            results = [
+                c for c in results
+                if self._credential_date(c.get('timestamp', '')) >= start_date
+            ]
         
         if end_date:
-            results = [c for c in results if c.get('timestamp', '') <= end_date]
+            results = [
+                c for c in results
+                if self._credential_date(c.get('timestamp', '')) <= end_date
+            ]
         
         return results
     

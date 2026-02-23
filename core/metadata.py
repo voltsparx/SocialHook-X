@@ -4,15 +4,24 @@ SocialHook-X - Project Metadata Module
 Contains all project metadata including version, author, and repository information.
 """
 
+from . import colors
+
 # Project Information
 PROJECT_NAME = "SocialHook-X"
 PROJECT_VERSION = "4.0.0"
+TOOL_VERSION = "v3.5"
 PROJECT_DESCRIPTION = "Professional Phishing Framework with Advanced Analytics"
 
 # Author Information
 AUTHOR = "voltsparx"
 AUTHOR_EMAIL = "voltsparx@gmail.com"
 AUTHOR_CONTACT = f"{AUTHOR} <{AUTHOR_EMAIL}>"
+
+# Formatted Metadata with Colors
+FORMATTED_VERSION = f"{colors.BRIGHT_BLUE}{colors.BOLD}SocialHook-X {TOOL_VERSION}{colors.RESET}"
+FORMATTED_AUTHOR = f"{colors.BRIGHT_GREEN}{AUTHOR}{colors.RESET}"
+FORMATTED_CONTACT = f"{colors.BRIGHT_GREEN}<{AUTHOR_EMAIL}>{colors.RESET}"
+FORMATTED_METADATA = f"{colors.BRIGHT_BLUE}Project:{colors.RESET} {FORMATTED_VERSION} | {colors.BRIGHT_BLUE}Author:{colors.RESET} {FORMATTED_AUTHOR} {FORMATTED_CONTACT}"
 
 # Repository Information
 REPOSITORY_URL = "https://github.com/voltsparx/SocialHook-X"
@@ -84,38 +93,35 @@ VERSION_INFO = {
 }
 
 def get_version():
-    """Get formatted version string."""
-    return f"{PROJECT_NAME} v{PROJECT_VERSION}"
+    """Get formatted version string with colored output."""
+    return f"{colors.BRIGHT_BLUE}{colors.BOLD}{PROJECT_NAME}{colors.RESET} {colors.BRIGHT_GREEN}{TOOL_VERSION}{colors.RESET}"
 
 def get_banner():
     """Get project banner with metadata."""
-    from . import colors
-    
     banner = f"""
-{colors.BRIGHT_BLUE}{colors.BOLD}╔════════════════════════════════════════════════════════╗{colors.RESET}
-{colors.BRIGHT_BLUE}{colors.BOLD}║          SocialHook-X v4.0 - Professional Phishing Framework          ║{colors.RESET}
-{colors.BRIGHT_BLUE}{colors.BOLD}╚════════════════════════════════════════════════════════╝{colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}========================================================{colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}     SocialHook-X {TOOL_VERSION} - Professional Phishing Framework    {colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}========================================================{colors.RESET}
 
-{colors.BRIGHT_BLUE}Author:{colors.RESET}      {AUTHOR} <{AUTHOR_EMAIL}>
-{colors.BRIGHT_BLUE}Repository:{colors.RESET}  {REPOSITORY_URL}
-{colors.BRIGHT_BLUE}License:{colors.RESET}     {LICENSE} • {LICENSE_YEAR}
+{colors.BRIGHT_GREEN}{colors.BOLD}Author:{colors.RESET}      {FORMATTED_AUTHOR} {FORMATTED_CONTACT}
+{colors.BRIGHT_GREEN}{colors.BOLD}Version:{colors.RESET}     {TOOL_VERSION}
+{colors.BRIGHT_GREEN}{colors.BOLD}Repository:{colors.RESET}  {REPOSITORY_URL}
+{colors.BRIGHT_BLUE}License:{colors.RESET}     {LICENSE} - {LICENSE_YEAR}
 {colors.BRIGHT_BLUE}Status:{colors.RESET}      {BUILD_STATUS}
 {colors.BRIGHT_BLUE}Build Date:{colors.RESET}  {BUILD_DATE}
 
-{colors.BRIGHT_BLUE}═══════════════════════════════════════════════════════════{colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}========================================================{colors.RESET}
     """
     return banner
 
 def get_full_banner():
     """Get full banner with features list."""
-    from . import colors
-    
-    features_str = "\n".join([f"  {colors.BRIGHT_BLUE}✓{colors.RESET} {feature}" for feature in FEATURES])
+    features_str = "\n".join([f"  {colors.BRIGHT_GREEN}[+]{colors.RESET} {feature}" for feature in FEATURES])
     
     banner = f"""
-{colors.BRIGHT_BLUE}{colors.BOLD}╔════════════════════════════════════════════════════════╗{colors.RESET}
-{colors.BRIGHT_BLUE}{colors.BOLD}║          SocialHook-X v4.0 - Professional Phishing Framework          ║{colors.RESET}
-{colors.BRIGHT_BLUE}{colors.BOLD}╚════════════════════════════════════════════════════════╝{colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}========================================================{colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}          SocialHook-X v4.0 - Professional Phishing Framework          {colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}========================================================{colors.RESET}
 
 {colors.BRIGHT_BLUE}{colors.BOLD}Core Information:{colors.RESET}
   {colors.BRIGHT_BLUE}Project:{colors.RESET}  {PROJECT_NAME}
@@ -126,7 +132,7 @@ def get_full_banner():
 {colors.BRIGHT_BLUE}{colors.BOLD}Key Features:{colors.RESET}
 {features_str}
 
-{colors.BRIGHT_BLUE}═══════════════════════════════════════════════════════════{colors.RESET}
+{colors.BRIGHT_BLUE}{colors.BOLD}========================================================{colors.RESET}
     """
     return banner
 

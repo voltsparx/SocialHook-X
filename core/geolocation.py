@@ -7,15 +7,18 @@ import requests
 import logging
 from typing import Dict, Optional
 import time
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
 class GeoLocationTracker:
     """Track and cache geolocation data for IPs"""
     
-    def __init__(self, db = None):
+    def __init__(self, db = None, cache_ttl_hours: int = 24):
         self.db = db
         self.cache = {}
+        self.cache_timestamps = {}
+        self.cache_ttl = timedelta(hours=cache_ttl_hours)
         self.api_calls = 0
         self.last_api_call = 0
         self.rate_limit = 1  # seconds between API calls
@@ -38,15 +41,23 @@ class GeoLocationTracker:
                 'isp': 'Local Network'
             }
         
-        # Check memory cache
+        # Check memory cache with TTL
         if use_cache and ip_address in self.cache:
-            return self.cache[ip_address]
+            cached_time = self.cache_timestamps.get(ip_address)
+            if cached_time and datetime.now() - cached_time < self.cache_ttl:
+                return self.cache[ip_address]
+            else:
+                # Expired cache entry
+                del self.cache[ip_address]
+                if ip_address in self.cache_timestamps:
+                    del self.cache_timestamps[ip_address]
         
         # Check database cache
         if use_cache and self.db:
             cached = self.db.get_cached_geo(ip_address)
             if cached:
                 self.cache[ip_address] = cached
+                self.cache_timestamps[ip_address] = datetime.now()
                 return cached
         
         # Fetch from API
@@ -55,6 +66,7 @@ class GeoLocationTracker:
         if geo_data:
             # Cache in memory
             self.cache[ip_address] = geo_data
+            self.cache_timestamps[ip_address] = datetime.now()
             
             # Cache in database
             if self.db:

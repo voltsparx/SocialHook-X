@@ -2,9 +2,10 @@
 SocialHook-X - ANSI Color Codes Module
 
 Provides ANSI color codes for terminal output with bright blue aesthetic.
+Supports bright colors, grey colors, background colors, and text styles.
 """
 
-# Color Codes
+# Standard Colors
 BLACK = "\033[30m"
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -24,7 +25,21 @@ BRIGHT_MAGENTA = "\033[95m"
 BRIGHT_CYAN = "\033[96m"
 BRIGHT_WHITE = "\033[97m"
 
-# Background Colors
+# Grey Scale Colors (various shades)
+GREY_DARK = "\033[90m"          # Dark grey (bright black)
+GREY_LIGHT = "\033[37m"         # Light grey (white)
+GREY_MEDIUM = "\033[2m\033[37m" # Medium grey (dim white)
+
+# Extended Grey Codes (256-color palette)
+GREY_20 = "\033[38;5;236m"      # Very dark grey
+GREY_40 = "\033[38;5;237m"      # Dark grey
+GREY_60 = "\033[38;5;240m"      # Medium-dark grey
+GREY_80 = "\033[38;5;244m"      # Medium grey
+GREY_100 = "\033[38;5;248m"     # Medium-light grey
+GREY_120 = "\033[38;5;250m"     # Light grey
+GREY_140 = "\033[38;5;252m"     # Very light grey
+
+# Background Colors (Standard)
 BG_BLACK = "\033[40m"
 BG_RED = "\033[41m"
 BG_GREEN = "\033[42m"
@@ -33,6 +48,16 @@ BG_BLUE = "\033[44m"
 BG_MAGENTA = "\033[45m"
 BG_CYAN = "\033[46m"
 BG_WHITE = "\033[47m"
+
+# Background Colors (Bright)
+BG_BRIGHT_BLACK = "\033[100m"
+BG_BRIGHT_RED = "\033[101m"
+BG_BRIGHT_GREEN = "\033[102m"
+BG_BRIGHT_YELLOW = "\033[103m"
+BG_BRIGHT_BLUE = "\033[104m"
+BG_BRIGHT_MAGENTA = "\033[105m"
+BG_BRIGHT_CYAN = "\033[106m"
+BG_BRIGHT_WHITE = "\033[107m"
 
 # Text Styles
 BOLD = "\033[1m"
@@ -47,14 +72,15 @@ STRIKETHROUGH = "\033[9m"
 # Reset
 RESET = "\033[0m"
 
-# Theme Colors (SocialHook-X Primary Color: Bright Blue)
+# Theme Colors (SocialHook-X Primary Color: Bright Blue & Green)
 PRIMARY = BRIGHT_BLUE
-SECONDARY = CYAN
+SECONDARY = BRIGHT_GREEN
 SUCCESS = BRIGHT_GREEN
 WARNING = BRIGHT_YELLOW
 ERROR = BRIGHT_RED
 INFO = BRIGHT_BLUE
 DEBUG = BRIGHT_MAGENTA
+MUTED = GREY_MEDIUM
 
 # Composite Styles
 HEADER = f"{BRIGHT_BLUE}{BOLD}"

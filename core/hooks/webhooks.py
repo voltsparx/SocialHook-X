@@ -155,11 +155,22 @@ class WebhookHandler:
         Returns:
             Number of successful sends
         """
+        # Sanitize credential data - don't expose passwords
+        sanitized_cred = credential.copy()
+        
+        # Fields to remove from webhook payload
+        sensitive_fields = ['password', 'pass', 'secret', 'token', 'api_key']
+        for field in sensitive_fields:
+            if field in sanitized_cred:
+                sanitized_cred[field] = '***REDACTED***'
+        
+        # Add alert metadata
         alert_data = {
-            "event": "credential_captured",
-            "timestamp": datetime.now().isoformat(),
-            "credential": credential
+            'event': 'credential_captured',
+            'timestamp': datetime.now().isoformat(),
+            'credential': sanitized_cred
         }
+        
         return self.send_to_all(alert_data)
     
     def _validate_url(self, url: str) -> bool:

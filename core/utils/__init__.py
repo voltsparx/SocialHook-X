@@ -123,11 +123,11 @@ def get_architecture() -> str:
     return arch_map.get(machine, machine)
 
 
-def save_to_output(data: Dict, filename: str, format_type: str = "json") -> Optional[str]:
-    """Save data to an output file."""
+def save_to_output(data: Dict, filename: str, format_type: str = "txt") -> Optional[str]:
+    """Save data to an output file (.txt extension)."""
     from core.config import config
 
-    output_path = config.get_output_file(filename, format_type)
+    output_path = config.get_output_file(filename, "txt")
     try:
         with open(output_path, "w", encoding="utf-8") as handle:
             if format_type == "json":

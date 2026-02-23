@@ -149,6 +149,31 @@ def is_valid_url(url: str) -> bool:
     pattern = r'^https?://[^\s/$.?#].[^\s]*$'
     return re.match(pattern, url) is not None
 
+
+class TemplateManager:
+    """Manage phishing templates"""
+    
+    def __init__(self, templates_dir: str = "templates"):
+        self.templates_dir = Path(templates_dir)
+        self.available_templates = self._discover_templates()
+    
+    def _discover_templates(self) -> Dict[str, Path]:
+        """Discover available templates"""
+        templates = {}
+        if self.templates_dir.exists():
+            for item in self.templates_dir.iterdir():
+                if item.is_dir() and (item / 'index.php').exists():
+                    templates[item.name] = item
+        return templates
+    
+    def get_template(self, name: str) -> Optional[Path]:
+        """Get template directory"""
+        return self.available_templates.get(name)
+    
+    def list_templates(self) -> List[str]:
+        """List all available templates"""
+        return list(self.available_templates.keys())
+
 def sanitize_filename(filename: str) -> str:
     """Sanitize filename"""
     import re

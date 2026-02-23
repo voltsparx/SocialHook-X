@@ -7,10 +7,10 @@ geolocation lookups, and email notifications.
 
 import asyncio
 import logging
+import threading
 from typing import Callable, Any, List, Optional, Dict
 from dataclasses import dataclass
 from datetime import datetime
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ class AsyncEngine:
         self.max_concurrent_tasks = max_concurrent_tasks
         self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
         self.tasks: Dict[str, AsyncTask] = {}
+        self.task_lock = threading.Lock()
         self.event_loop: Optional[asyncio.AbstractEventLoop] = None
         self.running = False
     
@@ -56,25 +57,34 @@ class AsyncEngine:
         """Execute task with semaphore bounds"""
         async with self.semaphore:
             try:
-                task.status = "running"
-                task.started_at = datetime.now()
+                with self.task_lock:
+                    task.status = "running"
+                    task.started_at = datetime.now()
                 logger.info(f"Starting async task: {task.name} (ID: {task.task_id})")
                 
                 # Execute task
                 if asyncio.iscoroutinefunction(task.callback):
-                    task.result = await task.callback(*task.args, **task.kwargs)
+                    result = await task.callback(*task.args, **task.kwargs)
                 else:
-                    task.result = task.callback(*task.args, **task.kwargs)
+                    # Run sync callbacks in a worker thread to avoid blocking the event loop.
+                    result = await asyncio.to_thread(task.callback, *task.args, **task.kwargs)
+
+                if asyncio.iscoroutine(result):
+                    result = await result
+
+                with self.task_lock:
+                    task.result = result
+                    task.status = "completed"
+                    task.completed_at = datetime.now()
                 
-                task.status = "completed"
-                task.completed_at = datetime.now()
                 duration = (task.completed_at - task.started_at).total_seconds()
                 logger.info(f"Completed async task: {task.name} ({duration:.2f}s)")
             
             except Exception as e:
-                task.status = "failed"
-                task.error = str(e)
-                task.completed_at = datetime.now()
+                with self.task_lock:
+                    task.status = "failed"
+                    task.error = str(e)
+                    task.completed_at = datetime.now()
                 logger.error(f"Failed async task {task.name}: {e}")
     
     async def submit_async(self, task: AsyncTask) -> str:
@@ -86,7 +96,8 @@ class AsyncEngine:
         Returns:
             Task ID
         """
-        self.tasks[task.task_id] = task
+        with self.task_lock:
+            self.tasks[task.task_id] = task
         asyncio.create_task(self._bounded_task(task))
         return task.task_id
     
@@ -114,9 +125,11 @@ class AsyncEngine:
             Dictionary of completed tasks
         """
         try:
+            with self.task_lock:
+                task_ids = list(self.tasks.keys())
             pending_tasks = [
                 asyncio.create_task(self._wait_for_task(task_id))
-                for task_id in self.tasks.keys()
+                for task_id in task_ids
             ]
             
             if pending_tasks:
@@ -131,7 +144,12 @@ class AsyncEngine:
     
     async def _wait_for_task(self, task_id: str) -> None:
         """Wait for specific task to complete"""
-        while self.tasks[task_id].status not in ["completed", "failed"]:
+        while True:
+            with self.task_lock:
+                if task_id not in self.tasks:
+                    break
+                if self.tasks[task_id].status in ["completed", "failed"]:
+                    break
             await asyncio.sleep(0.1)
     
     def get_task_status(self, task_id: str) -> Optional[Dict]:
@@ -143,11 +161,12 @@ class AsyncEngine:
         Returns:
             Task status dictionary
         """
-        if task_id not in self.tasks:
-            return None
-        
-        task = self.tasks[task_id]
-        return {
+        with self.task_lock:
+            if task_id not in self.tasks:
+                return None
+            
+            task = self.tasks[task_id]
+            return {
             "task_id": task.task_id,
             "name": task.name,
             "status": task.status,
@@ -164,13 +183,15 @@ class AsyncEngine:
         Returns:
             Statistics dictionary
         """
-        completed = sum(1 for t in self.tasks.values() if t.status == "completed")
-        failed = sum(1 for t in self.tasks.values() if t.status == "failed")
-        running = sum(1 for t in self.tasks.values() if t.status == "running")
-        pending = sum(1 for t in self.tasks.values() if t.status == "pending")
+        with self.task_lock:
+            completed = sum(1 for t in self.tasks.values() if t.status == "completed")
+            failed = sum(1 for t in self.tasks.values() if t.status == "failed")
+            running = sum(1 for t in self.tasks.values() if t.status == "running")
+            pending = sum(1 for t in self.tasks.values() if t.status == "pending")
+            total_tasks = len(self.tasks)
         
         return {
-            "total_tasks": len(self.tasks),
+            "total_tasks": total_tasks,
             "completed": completed,
             "failed": failed,
             "running": running,
@@ -184,15 +205,16 @@ class AsyncEngine:
         Returns:
             Number of tasks cleared
         """
-        count = 0
-        task_ids_to_remove = [
-            task_id for task_id, task in self.tasks.items()
-            if task.status in ["completed", "failed"]
-        ]
+        with self.task_lock:
+            task_ids_to_remove = [
+                task_id for task_id, task in self.tasks.items()
+                if task.status in ["completed", "failed"]
+            ]
+            
+            for task_id in task_ids_to_remove:
+                del self.tasks[task_id]
         
-        for task_id in task_ids_to_remove:
-            del self.tasks[task_id]
-            count += 1
+        count = len(task_ids_to_remove)
         
         logger.info(f"Cleared {count} completed tasks")
         return count
@@ -230,8 +252,11 @@ async def run_async_task(callback: Callable, *args, **kwargs) -> Any:
     """
     if asyncio.iscoroutinefunction(callback):
         return await callback(*args, **kwargs)
-    else:
-        return callback(*args, **kwargs)
+    
+    result = await asyncio.to_thread(callback, *args, **kwargs)
+    if asyncio.iscoroutine(result):
+        return await result
+    return result
 
 
 async def batch_geolocation_lookup(ip_list: List[str], geo_tracker) -> List[Dict]:

@@ -38,7 +38,15 @@ class Config:
     DATABASE = str(OUTPUT_DIR / 'socialhook.db')
     
     # Security
-    SECRET_KEY = os.getenv('SHX_SECRET_KEY', secrets.token_hex(32))
+    _secret_key = os.getenv('SHX_SECRET_KEY')
+    SECRET_KEY = _secret_key if _secret_key else secrets.token_hex(32)
+    
+    @classmethod
+    def get_output_file(cls, filename: str, format_type: str = 'json') -> Path:
+        """Get output file path"""
+        output_file = cls.OUTPUT_DIR / f"{filename}.{format_type}"
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        return output_file
     
     # Logging
     LOG_LEVEL = os.getenv('SHX_LOG_LEVEL', 'INFO')
