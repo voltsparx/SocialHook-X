@@ -1,14 +1,43 @@
-# LxPhisher Requirements
-# These will be automatically installed by install_lxphisher.sh
+# SocialHook-X Requirements
+# Python 3.8+
 
-php>=7.4
-curl
-wget
-unzip
-jq
-openssh-client
+# Web Framework
+Flask>=2.3.0
+Werkzeug>=2.3.0
+Jinja2>=3.1.0
 
-# Optional tunnel services (will be downloaded automatically)
-# ngrok
-# cloudflared  
-# localxpose
+# HTTP & Network
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Terminal & UI
+colorama>=0.4.6
+termcolor>=2.3.0
+
+# Configuration & Environment
+python-dotenv>=1.0.0
+
+# Logging & Monitoring
+python-json-logger>=2.0.0
+
+# Security
+cryptography>=41.0.0
+
+# CLI & Command Line
+click>=8.1.0
+
+# Database
+# (SQLite3 is built-in)
+
+# Geolocation
+requests>=2.31.0
+
+# QR Code (optional, for token generation)
+qrcode>=7.4.2
+Pillow>=10.0.0
+
+# Development (optional)
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+
