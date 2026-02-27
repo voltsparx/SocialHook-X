@@ -260,7 +260,7 @@ Select from 5 tunnel services:
 
 ```
 socialhook-x/
-├── core/                           # Main Python package
+├── core/                          # Main Python package
 │   ├── __init__.py                # Package exports (60+ symbols)
 │   ├── config.py                  # Legacy configuration
 │   ├── utils.py                   # Legacy utilities
@@ -271,48 +271,45 @@ socialhook-x/
 │   ├── reports.py                 # Report generation
 │   ├── metadata.py                # Project metadata
 │   ├── colors.py                  # Color themes (bright blue)
-│   ├── async_engine.py            # 🔥 AsyncEngine (450+ lines)
-│   ├── threading_engine.py        # 🔥 ThreadingEngine (420+ lines)
-│   ├── credential_storage.py      # 🔥 Persistent storage (280+ lines)
+│   ├── async_engine.py            # AsyncEngine (450+ lines)
+│   ├── threading_engine.py        # ThreadingEngine (420+ lines)
+│   ├── credential_storage.py      # Persistent storage (280+ lines)
 │   ├── config/                    # Configuration submodule
-│   │   ├── __init__.py           # Config exports
-│   │   ├── templates.py          # 🔥 20+ templates
-│   │   └── servers.py            # 🔥 Port management
+│   │   ├── __init__.py            # Config exports
+│   │   ├── templates.py           # 20+ templates
+│   │   └── servers.py             # Port management
 │   ├── hooks/                     # Extension hooks submodule
-│   │   ├── __init__.py           # Hooks exports
-│   │   ├── events.py             # 🔥 8-event system
-│   │   └── webhooks.py           # 🔥 Webhook handler
+│   │   ├── __init__.py            # Hooks exports
+│   │   ├── events.py              # 8-event system
+│   │   └── webhooks.py            # Webhook handler
 │   └── utils/                     # Utils submodule
-│       ├── __init__.py           # Utils exports
-│       ├── validators.py         # 🔥 Input validation
-│       ├── formatters.py         # 🔥 Export formatters
-│       └── helpers.py            # 🔥 System helpers
+│       ├── __init__.py            # Utils exports
+│       ├── validators.py          # Input validation
+│       ├── formatters.py          # Export formatters
+│       └── helpers.py             # System helpers
 ├── templates/                     # 38+ phishing templates
 ├── servers/                       # Active server instances
 ├── captured_data/                 # Captured credentials
-├── output/                        # 🔥 Multi-format outputs
+├── output/                        # Multi-format outputs
 │   └── credentials/
-│       ├── json/                 # JSON exports
-│       ├── csv/                  # CSV exports
-│       ├── html/                 # HTML exports
-│       └── raw/                  # Raw backups
-├── third_party/                   # External frameworks
-│   ├── SocialFish/
-│   └── Zphisher/
-├── socialhook-x.py               # Main application
-├── install-socialhook.py         # Installer script
-├── requirements.txt              # Python dependencies
-├── .env.example                  # Configuration template
-├── README.md                     # This file
-└── 📚 Documentation (NEW)
-    ├── DOCUMENTATION_INDEX.md    # Navigation guide
-    ├── QUICK_REFERENCE_v2.md     # Quick start & examples
-    ├── INTEGRATION_GUIDE.md      # Complete usage guide
-    ├── ROBUSTNESS_SUMMARY.md     # Architecture overview
-    ├── PROJECT_STATUS.md         # Project details
-    ├── COMPLETION_REPORT.md      # Executive summary
-    ├── FINAL_SUMMARY.md          # Comprehensive summary
-    └── README_COMPLETION.txt     # Visual overview
+│       ├── json/                  # JSON exports
+│       ├── csv/                   # CSV exports
+│       ├── html/                  # HTML exports
+│       └── raw/                   # Raw backups
+├── socialhook-x.py                # Main application
+├── install-socialhook.py          # Installer script
+├── requirements.txt               # Python dependencies
+├── .env.example                   # Configuration template
+├── README.md                      # This file
+└── Documentation (NEW)
+    ├── DOCUMENTATION_INDEX.md     # Navigation guide
+    ├── QUICK_REFERENCE_v2.md      # Quick start & examples
+    ├── INTEGRATION_GUIDE.md       # Complete usage guide
+    ├── ROBUSTNESS_SUMMARY.md      # Architecture overview
+    ├── PROJECT_STATUS.md          # Project details
+    ├── COMPLETION_REPORT.md       # Executive summary
+    ├── FINAL_SUMMARY.md           # Comprehensive summary
+    └── README_COMPLETION.txt      # Visual overview
 ```
 
 ---
